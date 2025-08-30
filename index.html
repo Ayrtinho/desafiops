@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Classifier App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        function updateFileInfo(input) {
+            const fileInfo = document.getElementById('file-info');
+            if (input.files && input.files.length > 0) {
+                const file = input.files[0];
+                const fileSize = (file.size / 1024).toFixed(1); // KB
+                fileInfo.innerHTML = `📄 ${file.name} (${fileSize} KB)`;
+                fileInfo.style.color = '#059669';
+                fileInfo.style.fontWeight = '600';
+            } else {
+                fileInfo.innerHTML = 'Nenhum arquivo selecionado';
+                fileInfo.style.color = '#6b7280';
+                fileInfo.style.fontWeight = '500';
+            }
+        }
+
+        function submitForm(event) {
+            event.preventDefault();
+            showLoading();
+            
+            const formData = new FormData();
+            const fileInput = document.getElementById('email_file');
+            const textInput = document.querySelector('textarea[name="email_text"]');
+            
+            if (fileInput.files.length > 0) {
+                formData.append('email_file', fileInput.files[0]);
+            } else if (textInput.value.trim()) {
+                formData.append('email_text', textInput.value.trim());
+            } else {
+                hideLoading();
+                showError('Por favor, selecione um arquivo ou cole o texto do email.');
+                return;
+            }
+            
+            fetch('/classify', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.error) {
+                    showError(data.error);
+                } else {
+                    showResult(data);
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                showError('Erro na comunicação com o servidor: ' + error.message);
+            });
+        }
+        
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            
+            const container = document.querySelector('.container');
+            const existingError = container.querySelector('.error');
+            if (existingError) {
+                existingError.remove();
+            }
+            container.appendChild(errorDiv);
+            
+            setTimeout(() => {
+                errorDiv.remove();
+            }, 5000);
+        }
+        
+        function showResult(data) {
+            const resultDiv = document.createElement('div');
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = `
+                <strong>Categoria:</strong> ${data.categoria}<br>
+                <strong>Resposta sugerida:</strong> ${data.resposta}<br>
+                <details>
+                    <summary>Ver texto do email analisado</summary>
+                    <pre>${data.email}</pre>
+                </details>
+            `;
+            
+            const container = document.querySelector('.container');
+            const existingResult = container.querySelector('.result');
+            if (existingResult) {
+                existingResult.remove();
+            }
+            container.appendChild(resultDiv);
+        }
+    </script>
+</head>
+<body>
+<div class="container">
+    <h2>🤖 Classificador de Emails com IA</h2>
+    <form onsubmit="submitForm(event)">
+        <label for="email_file">📁 Upload de arquivo:</label>
+        <div class="file-upload-container">
+            <div class="file-upload-title">Formatos aceitos: (.txt ou .pdf)</div>
+            <div class="file-upload-area">
+                <div class="file-upload-row">
+                    <div class="file-info" id="file-info">Nenhum arquivo selecionado</div>
+                    <button type="button" class="select-file-btn-small" onclick="document.getElementById('email_file').click()">
+                        Selecionar
+                    </button>
+                </div>
+                <input type="file" id="email_file" name="email_file" accept=".txt,.pdf" style="display: none;" onchange="updateFileInfo(this)">
+            </div>
+        </div>
+        <label>Ou cole o texto do email:</label>
+        <textarea name="email_text" rows="6" placeholder="Cole aqui o texto do email..."></textarea>
+        <button type="submit">Classificar e Sugerir Resposta</button>
+    </form>
+    <div id="loading" class="loading" style="display:none;">
+        Processando, por favor aguarde...
+    </div>
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory, jsonify
 import PyPDF2
 import nltk
 from nltk.corpus import stopwords
@@ -72,37 +72,42 @@ def classify_and_respond(text):
             resposta = line.split(":", 1)[1].strip()
     return categoria, resposta
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET'])
 def index():
-    if request.method == 'POST':
-        email_text = ""
-        if 'email_file' in request.files and request.files['email_file'].filename:
-            try:
-                email_text = extract_text(request.files['email_file'])
-            except Exception as e:
-                return render_template('index.html', error=f"Erro ao processar arquivo: {e}")
-        elif 'email_text' in request.form and request.form['email_text'].strip():
-            email_text = request.form['email_text']
-        else:
-            return render_template('index.html', error="Nenhum email fornecido.")
+    return send_from_directory('.', 'index.html')
 
+@app.route('/styles.css')
+def styles():
+    return send_from_directory('.', 'styles.css')
+
+@app.route('/classify', methods=['POST'])
+def classify():
+    email_text = ""
+    if 'email_file' in request.files and request.files['email_file'].filename:
         try:
-            processed = preprocess_text(email_text)
+            email_text = extract_text(request.files['email_file'])
         except Exception as e:
-            return render_template('index.html', error=f"Erro ao processar texto: {e}")
+            return jsonify({'error': f"Erro ao processar arquivo: {e}"})
+    elif 'email_text' in request.form and request.form['email_text'].strip():
+        email_text = request.form['email_text']
+    else:
+        return jsonify({'error': "Nenhum email fornecido."})
 
-        try:
-            categoria, resposta = classify_and_respond(processed)
-        except Exception as e:
-            return render_template('index.html', error=f"Erro ao consultar IA: {e}")
+    try:
+        processed = preprocess_text(email_text)
+    except Exception as e:
+        return jsonify({'error': f"Erro ao processar texto: {e}"})
 
-        return render_template(
-            'index.html',
-            categoria=categoria,
-            resposta=resposta,
-            email=email_text
-        )
-    return render_template('index.html')
+    try:
+        categoria, resposta = classify_and_respond(processed)
+    except Exception as e:
+        return jsonify({'error': f"Erro ao consultar IA: {e}"})
+
+    return jsonify({
+        'categoria': categoria,
+        'resposta': resposta,
+        'email': email_text
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
