@@ -1,27 +1,28 @@
 # 🤖 Classificador de Emails com IA
 
-Uma aplicação web inteligente que utiliza Inteligência Artificial para classificar emails automaticamente e sugerir respostas apropriadas.
+Uma aplicação web inteligente que utiliza Inteligência Artificial (Google Gemini) para classificar emails automaticamente e sugerir respostas apropriadas.
 
 ## 📋 Descrição
 
 Esta aplicação foi desenvolvida para ajudar usuários a:
-- **Classificar emails** automaticamente por categoria
-- **Gerar respostas sugeridas** baseadas no conteúdo do email
+- **Classificar emails** automaticamente como "Produtivo" ou "Improdutivo"
+- **Gerar respostas sugeridas** baseadas no conteúdo do email usando IA
 - **Processar arquivos** (.txt e .pdf) ou texto direto
-- **Interface moderna** e responsiva
+- **Interface moderna** e responsiva com design atualizado
 
 ## 🚀 Como Funcionar
 
 ### Pré-requisitos
 - Python 3.7 ou superior
 - pip (gerenciador de pacotes Python)
+- Chave de API do Google AI Studio (Gemini)
 
 ### Instalação
 
 1. **Clone o repositório:**
 ```bash
 git clone <url-do-repositorio>
-cd email_classifier_app_ready
+cd desafio
 ```
 
 2. **Instale as dependências:**
@@ -29,14 +30,21 @@ cd email_classifier_app_ready
 pip install -r requirements.txt
 ```
 
-3. **Execute a aplicação:**
+3. **Configure a API Key (opcional):**
+   - Edite o arquivo `app.py`
+   - Substitua a chave da API na linha 12:
+   ```python
+   GOOGLE_API_KEY = "sua-chave-api-aqui"
+   ```
+
+4. **Execute a aplicação:**
 ```bash
 python app.py
 ```
 
-4. **Acesse no navegador:**
+5. **Acesse no navegador:**
 ```
-http://localhost:5000
+http://localhost:8080
 ```
 
 ## 🎯 Como Usar
@@ -45,7 +53,7 @@ http://localhost:5000
 - **Formatos aceitos**: `.txt` ou `.pdf`
 - Clique no botão "Selecionar" à direita
 - Escolha o arquivo que contém o email
-- O nome do arquivo aparecerá na caixa de texto
+- O nome do arquivo e tamanho aparecerão na interface
 
 ### 2. Texto Direto
 - Cole o texto do email diretamente na caixa de texto
@@ -54,96 +62,132 @@ http://localhost:5000
 
 ### 3. Classificação
 - Clique em "Classificar e Sugerir Resposta"
-- A IA analisará o conteúdo do email
-- Aguarde o processamento (indicado pela animação)
+- A IA (Google Gemini) analisará o conteúdo do email
+- Aguarde o processamento (indicado pela animação de loading)
 
 ### 4. Resultados
-- **Categoria**: Classificação automática do email
+- **Categoria**: Classificação automática (Produtivo/Improdutivo)
 - **Resposta sugerida**: Sugestão de resposta baseada na IA
 - **Texto analisado**: Visualize o email processado (expandível)
 
 ## 🏗️ Estrutura do Projeto
 
 ```
-email_classifier_app_ready/
+desafio/
 ├── app.py                 # Aplicação principal Flask
+├── index.html             # Interface HTML (na raiz)
+├── styles.css             # Estilos CSS (na raiz)
 ├── requirements.txt       # Dependências Python
-├── README.md             # Este arquivo
-├── static/
-│   └── styles.css        # Estilos CSS da interface
-└── templates/
-    └── index.html        # Template HTML principal
+└── README.md             # Este arquivo
 ```
 
 ## 🎨 Características da Interface
 
 ### Design Moderno
 - **Fundo branco** limpo e profissional
-- **Tipografia Poppins** moderna e legível
+- **Tipografia Poppins e Inter** moderna e legível
 - **Animações suaves** para melhor experiência
 - **Layout responsivo** para todos os dispositivos
-
-### Elementos Visuais
 - **Gradientes** em botões e títulos
 - **Sombras sutis** para profundidade
+
+### Elementos Visuais
 - **Ícones** para melhor identificação
 - **Estados hover** interativos
-
-### Funcionalidades
-- **Upload de arquivo** com botão simples
+- **Upload de arquivo** com feedback visual
 - **Área de texto** redimensionável
-- **Feedback visual** durante processamento
-- **Exibição de resultados** organizada
+- **Loading animado** durante processamento
+- **Resultados organizados** com expansão de detalhes
 
 ## 🔧 Tecnologias Utilizadas
 
 ### Backend
 - **Flask**: Framework web Python
-- **Python**: Linguagem principal
-- **IA/ML**: Para classificação e geração de respostas
+- **Google Generative AI**: API do Gemini para IA
+- **NLTK**: Processamento de linguagem natural
+- **PyPDF2**: Leitura de arquivos PDF
 
 ### Frontend
 - **HTML5**: Estrutura da página
-- **CSS3**: Estilização moderna
-- **JavaScript**: Interações dinâmicas
-- **Google Fonts**: Tipografia Poppins
+- **CSS3**: Estilização moderna com animações
+- **JavaScript**: Interações dinâmicas e AJAX
+- **Google Fonts**: Tipografia Poppins e Inter
 
-### Dependências
-- Flask
-- Outras bibliotecas listadas em `requirements.txt`
+### Dependências Principais
+```
+flask
+flask-cors
+google-generativeai
+PyPDF2
+nltk
+```
+
+## 🤖 Inteligência Artificial
+
+### Google Gemini
+- **Modelo**: gemini-1.5-flash
+- **Função**: Classificação e geração de respostas
+- **Processamento**: Análise de texto em português
+- **Saída**: Categoria + resposta sugerida
+
+### Processamento de Texto
+- **NLTK**: Tokenização e remoção de stopwords
+- **RSLPStemmer**: Stemming específico para português
+- **Pré-processamento**: Limpeza e normalização do texto
 
 ## 📱 Responsividade
 
 A aplicação é totalmente responsiva e funciona em:
-- **Desktop**: Interface completa
-- **Tablet**: Layout adaptado
-- **Mobile**: Versão otimizada para toque
+- **Desktop**: Interface completa com todas as funcionalidades
+- **Tablet**: Layout adaptado para telas médias
+- **Mobile**: Versão otimizada para toque e telas pequenas
 
 ## 🎯 Casos de Uso
 
 ### Profissionais
-- **Atendimento ao cliente**: Classificar e responder emails
-- **Suporte técnico**: Organizar solicitações
+- **Atendimento ao cliente**: Classificar e responder emails automaticamente
+- **Suporte técnico**: Organizar solicitações por prioridade
 - **Vendas**: Categorizar leads e oportunidades
+- **RH**: Triagem de candidaturas e solicitações
 
 ### Pessoais
-- **Organização de emails**: Classificar correspondência
+- **Organização de emails**: Classificar correspondência pessoal
 - **Automação**: Respostas rápidas e consistentes
 - **Produtividade**: Economizar tempo na gestão de emails
 
-## 🔒 Segurança
+## 🔒 Segurança e Privacidade
 
-- **Validação de arquivos**: Apenas formatos permitidos
-- **Processamento local**: Dados não são enviados externamente
-- **Interface segura**: Sem vulnerabilidades conhecidas
+- **Validação de arquivos**: Apenas formatos permitidos (.txt, .pdf)
+- **Processamento via API**: Dados enviados para Google AI Studio
+- **Interface segura**: Validação de entrada e saída
+- **Sem armazenamento**: Dados não são salvos localmente
 
 ## 🚀 Melhorias Futuras
 
-- [ ] Suporte a mais formatos de arquivo
+- [ ] Suporte a mais formatos de arquivo (.docx, .eml)
 - [ ] Histórico de classificações
 - [ ] Personalização de categorias
 - [ ] Integração com servidores de email
-- [ ] API REST para integração
+- [ ] API REST para integração externa
+- [ ] Cache de resultados para melhor performance
+- [ ] Suporte a múltiplos idiomas
+
+## 🐛 Solução de Problemas
+
+### Problemas Comuns
+
+1. **CSS não carrega:**
+   - Verifique se o servidor está rodando na porta 8080
+   - Recarregue a página (Ctrl+F5)
+
+2. **IA não responde:**
+   - Verifique a conexão com a internet
+   - Confirme se a API key está configurada
+   - Verifique os logs do servidor
+
+3. **Arquivo não é processado:**
+   - Confirme se o formato é .txt ou .pdf
+   - Verifique se o arquivo não está corrompido
 
 ## 🤝 Contribuição
 
@@ -167,4 +211,4 @@ Para dúvidas ou problemas:
 
 ---
 
-**Desenvolvido com ❤️ para facilitar a gestão de emails**
+**Desenvolvido com ❤️ para facilitar a gestão de emails usando IA**
